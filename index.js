@@ -6,6 +6,7 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let facetensor = null;
 
+
 const setupCamera = () => {
     navigator.mediaDevices
         .getUserMedia({
@@ -45,8 +46,12 @@ const detectFaces = async () => {
                 x2 - x1,
             );
             ctx.stroke();
+            let img = ctx.getImageData(y1, x1, y2-y1, x2-x1);
+            img.resizeTo(80,80);
+            console.log(img);
+            // const example = tf.browser.fromPixels(img);  // for example
+            // const prediction = modelForEmotionRecognition.predict(example);
 
-            faceTensor = originalTensor.slice([x1s, y1s], [x2s - x1s, y2s - y1s]);
         }
     }
 };
@@ -54,7 +59,7 @@ const detectFaces = async () => {
 setupCamera();
 video.addEventListener("loadeddata", async () => {
     modelForFaceDetection = await blazeface.load();
-    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/resnet50js_ferplus/model.json');
+    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/main/resnet50js_ferplus/model.json');
     // call detect faces every 100 milliseconds or 10 times every second
     setInterval(detectFaces, 100);
 });
