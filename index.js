@@ -1,5 +1,6 @@
 let video = document.getElementById("video");
-let model;
+let modelForFaceDetection;
+let modelForEmotionRecognition;
 // declare a canvas variable and get its context
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
@@ -17,7 +18,7 @@ const setupCamera = () => {
 };
 
 const detectFaces = async () => {
-    const face = await model.estimateFaces(video, false);
+    const face = await modelForFaceDetection.estimateFaces(video, false);
 
     // draw the video first
     ctx.drawImage(video, 0, 0, 600, 400);
@@ -52,7 +53,8 @@ const detectFaces = async () => {
 
 setupCamera();
 video.addEventListener("loadeddata", async () => {
-    model = await blazeface.load();
+    modelForFaceDetection = await blazeface.load();
+    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/tensorflowjs/tensorflowjs/resnet50js_ferplus/model.json');
     // call detect faces every 100 milliseconds or 10 times every second
     setInterval(detectFaces, 100);
 });
