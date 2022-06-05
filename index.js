@@ -54,7 +54,7 @@ const detectFaces = async () => {
 setupCamera();
 video.addEventListener("loadeddata", async () => {
     modelForFaceDetection = await blazeface.load();
-    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/tensorflowjs/tensorflowjs/resnet50js_ferplus/model.json');
+    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/resnet50js_ferplus/model.json');
     // call detect faces every 100 milliseconds or 10 times every second
     setInterval(detectFaces, 100);
 });
