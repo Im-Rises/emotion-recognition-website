@@ -47,14 +47,12 @@ const detectFaces = async () => {
             ctx.stroke();
             let img = ctx.getImageData(y1, x1, y2 - y1, x2 - x1);
 
-            let resized = tf.browser.fromPixels(img).resizeBilinear([80,80]) // [7, 7, 3]
+            let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
             // const image = tf.ones([183, 275, 3 ])
             resized = tf.image.resizeBilinear(resized, [80, 80])
-            resized = resized.reshape([1,80,80,3]);
+            resized = resized.reshape([1, 80, 80, 3]);
 
-            let prediction = modelForEmotionRecognition.predict(resized);
-
-            console.log(prediction.toString());
+            let prediction = modelForEmotionRecognition.predict(resized).dataSync();
         }
     }
 };
