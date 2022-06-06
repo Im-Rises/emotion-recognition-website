@@ -6,6 +6,7 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let facetensor = null;
 let x1, y1, x2, y2;
+let currentEmotion = "test";
 
 const emotions = {
     0: "angry",
@@ -40,25 +41,6 @@ const getMax = (pred) => {
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
-const predictFace = async () => {
-    const width = y2 - y1;
-    const height = x2 - x1;
-    let img = ctx.getImageData(y1,
-        x1 - height / 2,
-        width,
-        height + height * 2 / 3,
-    );
-
-    let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
-    // const image = tf.ones([183, 275, 3 ])
-    resized = tf.image.resizeBilinear(resized, [80, 80])
-    resized = resized.reshape([1, 80, 80, 3]);
-
-    let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
-
-    console.log(getBestEmotion(prediction));
-}
-
 const detectFaces = async () => {
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
@@ -77,6 +59,7 @@ const detectFaces = async () => {
 
             const width = y2 - y1;
             const height = x2 - x1;
+
             ctx.rect(
                 y1,
                 x1 - height / 2,
@@ -84,6 +67,26 @@ const detectFaces = async () => {
                 height + height * 2 / 3,
             );
             ctx.stroke();
+
+
+            let img = ctx.getImageData(y1,
+                x1 - height / 2,
+                width,
+                height + height * 2 / 3,
+            );
+
+            let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
+            // const image = tf.ones([183, 275, 3 ])
+            resized = tf.image.resizeBilinear(resized, [80, 80])
+            resized = resized.reshape([1, 80, 80, 3]);
+
+            let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
+
+            currentEmotion = getBestEmotion(prediction);
+
+            ctx.fillText(currentEmotion, y1, x1);
+            ctx.font = "30px Impact";
+            ctx.fillStyle = "red";
         }
     }
 };
@@ -94,6 +97,4 @@ video.addEventListener("loadeddata", async () => {
     modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/main/resnet50js_ferplus/model.json');
     // call detect faces every 100 milliseconds or 10 times every second
     setInterval(detectFaces, 100);
-    setInterval(predictFace, 1000);
-
 });
