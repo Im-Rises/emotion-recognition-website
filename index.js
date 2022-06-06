@@ -18,6 +18,16 @@ const setupCamera = () => {
         });
 };
 
+const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
+
+const getMax = (pred) => {
+    let acc = 0;
+    for(let i of pred)
+        if(i > acc)
+            acc = i;
+    return acc;
+}
+
 const detectFaces = async () => {
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
@@ -52,7 +62,9 @@ const detectFaces = async () => {
             resized = tf.image.resizeBilinear(resized, [80, 80])
             resized = resized.reshape([1, 80, 80, 3]);
 
-            let prediction = modelForEmotionRecognition.predict(resized).dataSync();
+            let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
+
+            console.log(getIndexOfMax(prediction));
         }
     }
 };
