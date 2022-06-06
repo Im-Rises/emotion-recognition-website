@@ -27,7 +27,6 @@ const detectFaces = async () => {
     if (face.length > 0) {
         // save face to test_face_extract folder
         for (const face1 of face) {
-            const index = face.indexOf(face1);
             const [y1, x1] = face1.topLeft;
             const [y2, x2] = face1.bottomRight;
 
@@ -53,8 +52,9 @@ const detectFaces = async () => {
             resized = tf.image.resizeBilinear(resized, [80, 80])
             resized = resized.reshape([1,80,80,3]);
 
-            const prediction = modelForEmotionRecognition.predict(resized);
-            console.log(prediction);
+            let prediction = modelForEmotionRecognition.predict(resized);
+
+            console.log(prediction.toString());
         }
     }
 };
