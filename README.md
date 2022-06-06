@@ -58,3 +58,17 @@ Tensorflow python model to tensorflowjs :
 
 BlazeFace :  
 <https://www.npmjs.com/package/@tensorflow-models/blazeface>
+
+## Contributors
+
+Clément REIFFERS :  
+
+- @clementreiffers  
+- <https://github.com/clementreiffers>
+
+Quentin MOREL :
+
+- @Im-Rises
+- <https://github.com/Im-Rises>
+
+[![GitHub contributors](https://contrib.rocks/image?repo=clementreiffers/emotion-recognition-website)](https://github.com/clementreiffers/emotion-recognition-website/graphs/contributors)
