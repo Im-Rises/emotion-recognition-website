@@ -6,6 +6,15 @@ let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let facetensor = null;
 
+const emotions = {
+    0: "angry",
+    1: "disgust",
+    2: "fear",
+    3: "happy",
+    4: "neutral",
+    5: "sad",
+    6: "surprise",
+}
 
 const setupCamera = () => {
     navigator.mediaDevices
@@ -22,11 +31,14 @@ const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
 
 const getMax = (pred) => {
     let acc = 0;
-    for(let i of pred)
-        if(i > acc)
+    for (let i of pred)
+        if (i > acc)
             acc = i;
     return acc;
 }
+
+const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
+
 
 const detectFaces = async () => {
     const face = await modelForFaceDetection.estimateFaces(video, false);
@@ -39,11 +51,6 @@ const detectFaces = async () => {
         for (const face1 of face) {
             const [y1, x1] = face1.topLeft;
             const [y2, x2] = face1.bottomRight;
-
-            const x1s = Math.floor(x1 * video.width);
-            const y1s = Math.floor(y1 * video.height);
-            const x2s = Math.floor(x2 * video.width);
-            const y2s = Math.floor(y2 * video.height);
 
             ctx.beginPath();
             ctx.lineWidth = "2";
@@ -64,7 +71,8 @@ const detectFaces = async () => {
 
             let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
 
-            console.log(getIndexOfMax(prediction));
+            console.log(getBestEmotion(prediction));
+
         }
     }
 };
