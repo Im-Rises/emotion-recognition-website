@@ -5,6 +5,7 @@ let modelForEmotionRecognition;
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let facetensor = null;
+let x1, y1, x2, y2;
 
 const emotions = {
     0: "angry",
@@ -39,6 +40,18 @@ const getMax = (pred) => {
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
+const predictFace = async () => {
+    let img = ctx.getImageData(y1, x1, y2 - y1, x2 - x1);
+
+    let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
+    // const image = tf.ones([183, 275, 3 ])
+    resized = tf.image.resizeBilinear(resized, [80, 80])
+    resized = resized.reshape([1, 80, 80, 3]);
+
+    let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
+
+    console.log(getBestEmotion(prediction));
+}
 
 const detectFaces = async () => {
     const face = await modelForFaceDetection.estimateFaces(video, false);
@@ -49,8 +62,8 @@ const detectFaces = async () => {
     if (face.length > 0) {
         // save face to test_face_extract folder
         for (const face1 of face) {
-            const [y1, x1] = face1.topLeft;
-            const [y2, x2] = face1.bottomRight;
+            [y1, x1] = face1.topLeft;
+            [y2, x2] = face1.bottomRight;
 
             ctx.beginPath();
             ctx.lineWidth = "2";
@@ -62,17 +75,6 @@ const detectFaces = async () => {
                 x2 - x1,
             );
             ctx.stroke();
-            let img = ctx.getImageData(y1, x1, y2 - y1, x2 - x1);
-
-            let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
-            // const image = tf.ones([183, 275, 3 ])
-            resized = tf.image.resizeBilinear(resized, [80, 80])
-            resized = resized.reshape([1, 80, 80, 3]);
-
-            let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
-
-            console.log(getBestEmotion(prediction));
-
         }
     }
 };
@@ -83,4 +85,6 @@ video.addEventListener("loadeddata", async () => {
     modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/main/resnet50js_ferplus/model.json');
     // call detect faces every 100 milliseconds or 10 times every second
     setInterval(detectFaces, 100);
+    setInterval(predictFace, 1000);
+
 });
