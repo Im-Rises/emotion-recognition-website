@@ -1,9 +1,0 @@
-{
-  "name": "indian_guy",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "dependencies": {
-    "@tensorflow-models/blazeface": "^0.0.7"
-  }
-}
