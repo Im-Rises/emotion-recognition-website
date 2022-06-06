@@ -41,7 +41,13 @@ const getMax = (pred) => {
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
 const predictFace = async () => {
-    let img = ctx.getImageData(y1, x1, y2 - y1, x2 - x1);
+    const width = y2 - y1;
+    const height = x2 - x1;
+    let img = ctx.getImageData(y1,
+        x1 - height / 2,
+        width,
+        height + height * 2 / 3,
+    );
 
     let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]) // [7, 7, 3]
     // const image = tf.ones([183, 275, 3 ])
@@ -69,13 +75,13 @@ const detectFaces = async () => {
             ctx.lineWidth = "2";
             ctx.strokeStyle = "red";
 
-            const width =y2 - y1;
-            const height =x2 - x1;
+            const width = y2 - y1;
+            const height = x2 - x1;
             ctx.rect(
                 y1,
-                x1 -height/2,
+                x1 - height / 2,
                 width,
-                height+height/2,
+                height + height * 2 / 3,
             );
             ctx.stroke();
         }
