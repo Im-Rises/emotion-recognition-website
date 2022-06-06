@@ -9,10 +9,18 @@ The website is running our ResNet50 model with the correct weights use in the or
 
 ## Quickstart
 
-You just need to go to this address:  
+You just need to go to this address with a browser :  
 <https://clementreiffers.github.io/emotion-recognition-website>
 
 ## Modify/Change model
+
+First you need to install python and some libs :
+<https://www.python.org>
+
+To install the libs run the following command :
+```bash
+pip install -r requirements.txt
+```
 
 If you want to use another model for the emotion recognition. Save a model from a python script as a .h5 with the models and the weights.
 
