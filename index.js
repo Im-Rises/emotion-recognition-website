@@ -46,12 +46,15 @@ const detectFaces = async () => {
                 x2 - x1,
             );
             ctx.stroke();
-            let img = ctx.getImageData(y1, x1, y2-y1, x2-x1);
-            img.resizeTo(80,80);
-            console.log(img);
-            // const example = tf.browser.fromPixels(img);  // for example
-            // const prediction = modelForEmotionRecognition.predict(example);
+            let img = ctx.getImageData(y1, x1, y2 - y1, x2 - x1);
 
+            let resized = tf.browser.fromPixels(img).resizeBilinear([80,80]) // [7, 7, 3]
+            // const image = tf.ones([183, 275, 3 ])
+            resized = tf.image.resizeBilinear(resized, [80, 80])
+            resized = resized.reshape([1,80,80,3]);
+
+            const prediction = modelForEmotionRecognition.predict(resized);
+            console.log(prediction);
         }
     }
 };
