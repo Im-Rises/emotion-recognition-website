@@ -68,11 +68,14 @@ const detectFaces = async () => {
             ctx.beginPath();
             ctx.lineWidth = "2";
             ctx.strokeStyle = "red";
+
+            const width =y2 - y1;
+            const height =x2 - x1;
             ctx.rect(
                 y1,
-                x1,
-                y2 - y1,
-                x2 - x1,
+                x1 -height/2,
+                width,
+                height+height/2,
             );
             ctx.stroke();
         }
