@@ -7,6 +7,7 @@ let ctx = canvas.getContext("2d");
 let x1, y1, x2, y2;
 let currentEmotion = "test";
 
+
 const emotions = {
     0: "angry",
     1: "disgust",
@@ -17,15 +18,18 @@ const emotions = {
     6: "surprise",
 }
 
-const setupCamera = () => {
+const setupCamera = async () => {
     navigator.mediaDevices
         .getUserMedia({
-            video: {width: 600, height: 400},
+            video: {width: 1920, height: 1080},
             audio: false,
         })
         .then((stream) => {
             video.srcObject = stream;
         });
+    modelForFaceDetection = await blazeface.load();
+    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
+
 };
 
 const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
@@ -46,7 +50,7 @@ const detectFaces = async () => {
     // Clear all previous rectangles
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw the video first
-    ctx.drawImage(video, 0, 0, 600, 400);
+    ctx.drawImage(video, 0, 0, 1920, 1080);
 
     if (face.length > 0) {
         // save face to test_face_extract folder
@@ -94,7 +98,5 @@ const detectFaces = async () => {
 
 setupCamera();
 video.addEventListener("loadeddata", async () => {
-    modelForFaceDetection = await blazeface.load();
-    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
     setInterval(detectFaces, 100);
 });
