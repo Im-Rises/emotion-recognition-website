@@ -44,6 +44,8 @@ const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 const detectFaces = async () => {
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
+    // Clear all previous rectangles
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // draw the video first
     ctx.drawImage(video, 0, 0, 600, 400);
 
