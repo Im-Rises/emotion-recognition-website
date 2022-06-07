@@ -95,6 +95,6 @@ const detectFaces = async () => {
 setupCamera();
 video.addEventListener("loadeddata", async () => {
     modelForFaceDetection = await blazeface.load();
-    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/clementreiffers/emotion-recognition-website/main/resnet50js_ferplus/model.json');
+    modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
     setInterval(detectFaces, 100);
 });
