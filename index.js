@@ -76,7 +76,7 @@ const detectFaces = async () => {
         x1 = x1 + width / 8;
         y1 = y1 - height / 2;
         width = width - width / 4;
-        height = height + height*2/3;
+        height = height + height * 2 / 3;
 
         // Draw rectangle
         ctx.rect(x1, y1, width, height);
@@ -87,6 +87,37 @@ const detectFaces = async () => {
         // // Face to image
         // let img = ctx.getImageData(x1, y1, width, height);
         // console.log(img);
+
+        let myFaceImageData = new ImageData(100,100);
+        // console.log(myFaceImageData);
+        myFaceImageData.width=80;
+        myFaceImageData.height=80;
+        console.log(myFaceImageData);
+
+
+        // let myImageData = ctx.getImageData(x1, y1, width, height)["data"];
+        // // let dataArray = imageData.data
+        // let rgbArray = []
+        // for (let i = 0; i < myImageData.length; i += 4) {
+        //     // rgbArray.push([myImageData[i], myImageData[i+1], myImageData[i+2]])
+        //     rgbArray.push(myImageData[i]);
+        //     rgbArray.push(myImageData[i + 1]);
+        //     rgbArray.push(myImageData[i + 2]);
+        // }
+
+        // tf.image.resizeNearestNeighbor(rgbArray, [80, 80]);
+
+        // const x = tf.tensor1d(rgbArray);
+        // x.resize([80,80]).println();
+        // const x = tf.tensor1d([1, 2, 3, 4]);
+        // x.reshape([2, 2]).print()
+
+        // let resized = tf.browser.fromPixels(ctx.getImageData(x1,y1,width,height));
+
+
+        // console.log(test);
+        // let resized = tf.browser.fromPixels(test).resizeBilinear([80, 80]);
+        // let resized = test.reshape([1, 80, 80, 3]);
 
         // Data leak detected in image resizing
         // // let resized = tf.browser.fromPixels(img).resizeNearestNeighbor([80, 80]);
