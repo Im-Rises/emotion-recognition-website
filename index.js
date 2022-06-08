@@ -84,8 +84,9 @@ const detectFaces = async () => {
 
 
         tf.engine().startScope();
-        // Face to image
-        let img = ctx.getImageData(x1, y1, width, height);
+        // // Face to image
+        // let img = ctx.getImageData(x1, y1, width, height);
+        // console.log(img);
 
         // Data leak detected in image resizing
         // // let resized = tf.browser.fromPixels(img).resizeNearestNeighbor([80, 80]);
