@@ -47,8 +47,8 @@ const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 const magnifyResults = (pred) => {
     let emotionsWithValue = [];
     let magnified = "";
-    for(let i in pred) emotionsWithValue.push(emotions[i] + " : " + parseInt(pred[i]*100));
-    for(let i in emotionsWithValue) magnified+='<p>' + emotionsWithValue[i].toString().replace(/,/g, ' ') + '%</p>';
+    for (let i in pred) emotionsWithValue.push(emotions[i] + " : " + parseInt(pred[i] * 100));
+    for (let i in emotionsWithValue) magnified += '<p>' + emotionsWithValue[i].toString().replace(/,/g, ' ') + '%</p>';
     return magnified;
 }
 
@@ -64,42 +64,40 @@ const detectFaces = async () => {
 
     if (face.length > 0) {
         // save face to test_face_extract folder
-        for (const face1 of face) {
-            [y1, x1] = face1.topLeft;
-            [y2, x2] = face1.bottomRight;
+        let [x1, y1] = face[0].topLeft;
+        let [x2, y2] = face[0].bottomRight;
+        let width = x2 - x1;
+        let height = y2 - y1;
 
-            ctx.beginPath();
-            ctx.lineWidth = "2";
-            ctx.strokeStyle = "red";
+        ctx.lineWidth = "10";
+        ctx.strokeStyle = "red";
 
-            const width = y2 - y1;
-            const height = x2 - x1;
-            ctx.rect(
-                y1,
-                x1 - height / 2,
-                width,
-                height + height * 2 / 3,
-            );
-            ctx.stroke();
+        // Recalculate real coordinates to catch completely the face
+        x1 = x1 + width / 8;
+        y1 = y1 - height / 2;
+        width = width - width / 4;
+        height = height + height*2/3;
+
+        // Draw rectangle
+        ctx.rect(x1, y1, width, height);
+        ctx.stroke();
 
 
-            let img = ctx.getImageData(y1,
-                x1 - height / 2,
-                width,
-                height + height * 2 / 3,
-            );
+        tf.engine().startScope();
+        // Face to image
+        let img = ctx.getImageData(x1, y1, width, height);
 
-            // let resized = tf.browser.fromPixels(img).resizeNearestNeighbor([80, 80]);
-            // let resized = tf.browser.fromPixels(img).resizeBicubic([80, 80]);
-            let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]);
-            resized = resized.reshape([1, 80, 80, 3]);
+        // Data leak detected in image resizing
+        // // let resized = tf.browser.fromPixels(img).resizeNearestNeighbor([80, 80]);
+        // // let resized = tf.browser.fromPixels(img).resizeBicubic([80, 80]);
+        // let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]);
+        // resized = resized.reshape([1, 80, 80, 3]);
 
-            let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
-            currentEmotion = getBestEmotion(prediction);
-
-            results.innerHTML = magnifyResults(prediction);
-
-        }
+        // let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
+        // currentEmotion = getBestEmotion(prediction);
+        // results.innerHTML = magnifyResults(prediction);
+        tf.engine().endScope();
+        // }
     }
 };
 
