@@ -1,0 +1,37 @@
+h1 {
+    color: white;
+    text-align: center;
+}
+
+html{
+    background-color: black;
+}
+body {
+    margin: 0;
+}
+
+canvas {
+    border-radius: 30px;
+    width: 70%;
+    float: right;
+}
+#result{
+    float: left;
+    max-width: 50%;
+}
+
+#showEmotion{
+    position: absolute;
+    width: 25%;
+    padding: 2%;
+    display: list-item;
+    font-size: 180%;
+    background-color: white;
+    opacity: 0.7;
+    color: black;
+    border-radius: 30px;
+
+}
+
+#inline{
+}

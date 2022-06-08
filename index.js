@@ -1,27 +1,29 @@
-let video = document.getElementById("video");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const results = document.getElementById("showEmotion");
+
 let modelForFaceDetection;
 let modelForEmotionRecognition;
 // declare a canvas variable and get its context
-let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
 let x1, y1, x2, y2;
-let currentEmotion = "test";
+let currentEmotion = "";
 
 
 const emotions = {
-    0: "angry",
-    1: "disgust",
-    2: "fear",
-    3: "happy",
-    4: "neutral",
-    5: "sad",
-    6: "surprise",
+    0: "😡 angry",
+    1: "🤮 disgust",
+    2: "😨 fear",
+    3: "😄 happy",
+    4: "😐 neutral",
+    5: "😭 sad",
+    6: "😯 surprise",
 }
 
 const setupCamera = async () => {
     navigator.mediaDevices
         .getUserMedia({
-            video: {width: 1920, height: 1080},
+            video: {width: canvas.width, height: canvas.height},
             audio: false,
         })
         .then((stream) => {
@@ -36,21 +38,29 @@ const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
 
 const getMax = (pred) => {
     let acc = 0;
-    for (let i of pred)
-        if (i > acc)
-            acc = i;
+    for (let i of pred) if (i > acc) acc = i;
     return acc;
 }
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
-const detectFaces = async () => {
-    const face = await modelForFaceDetection.estimateFaces(video, false);
+const magnifyResults = (pred) => {
+    let emotionsWithValue = [];
+    let magnified = "";
+    for(let i in pred) emotionsWithValue.push(emotions[i] + " : " + parseInt(pred[i]*100));
+    for(let i in emotionsWithValue) magnified+='<p>' + emotionsWithValue[i].toString().replace(/,/g, ' ') + '%</p>';
+    return magnified;
+}
 
-    // Clear all previous rectangles
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // draw the video first
-    ctx.drawImage(video, 0, 0, 1920, 1080);
+const drawOnCanvas = () => {
+    ctx.reset();
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+}
+
+const detectFaces = async () => {
+    drawOnCanvas();
+
+    const face = await modelForFaceDetection.estimateFaces(video, false);
 
     if (face.length > 0) {
         // save face to test_face_extract folder
@@ -64,7 +74,6 @@ const detectFaces = async () => {
 
             const width = y2 - y1;
             const height = x2 - x1;
-
             ctx.rect(
                 y1,
                 x1 - height / 2,
@@ -86,12 +95,10 @@ const detectFaces = async () => {
             resized = resized.reshape([1, 80, 80, 3]);
 
             let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
-
             currentEmotion = getBestEmotion(prediction);
 
-            ctx.fillText(currentEmotion, x1, y1);
-            ctx.font = "30px Impact";
-            ctx.fillStyle = "red";
+            results.innerHTML = magnifyResults(prediction);
+
         }
     }
 };

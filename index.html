@@ -4,14 +4,18 @@
         <meta charset="UTF-8"/>
         <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Face Detection</title>
+        <link rel="stylesheet" href="style.css">
+        <title>Emotion Recognition</title>
     </head>
     <body>
-        <h1>Face Detection</h1>
+        <h1>Emotion Recognition</h1>
         <video id="video" autoplay style="display: none;"></video>
-        <video id="face" autoplay style="display: none"></video>
-        <canvas id="canvas" width="1920px" height="1080px"></canvas>
-        <canvas id="frames" style="overflow:auto"></canvas>
+        <div id="inline">
+            <div id="result">
+                <div id="showEmotion"></div>
+            </div>
+            <canvas id="canvas" width="1920px" height="1080px"></canvas>
+        </div>
     </body>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
