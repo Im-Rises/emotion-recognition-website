@@ -74,11 +74,16 @@ const detectFaces = async () => {
         let width = x2 - x1;
         let height = y2 - y1;
 
-        // Recalculate real coordinates to catch completely the face
-        x1 = parseInt(x1 + width / 8);
-        y1 = parseInt(y1 - height / 2);
-        width = parseInt(width-width / 4);
-        height = parseInt(height+height * 2 / 3);
+        // // Recalculate real coordinates to catch completely the face
+        // x1 = parseInt(x1 + width / 8);
+        // y1 = parseInt(y1 - height / 2);
+        // width = parseInt(width-width / 4);
+        // height = parseInt(height+height * 2 / 3);
+
+        x1 = parseInt(x1);
+        y1 = parseInt(y1);
+        width = parseInt(width);
+        height = parseInt(height);
 
         // Draw rectangle
         ctx.lineWidth = "10";
