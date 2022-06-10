@@ -99,16 +99,6 @@ const detectFaces = async () => {
         // }
         //
         // myImageData = tf.tensor4d(rgbArray, [1,80, 80, 3]);
-        //
-        //
-        // let prediction = Array.from(modelForEmotionRecognition.predict(myImageData).dataSync());
-        // currentEmotion = getBestEmotion(prediction);
-        // results.innerHTML = magnifyResults(prediction);
-
-
-
-
-
 
 
 
@@ -121,77 +111,7 @@ const detectFaces = async () => {
         currentEmotion = getBestEmotion(prediction);
         results.innerHTML = magnifyResults(prediction);
 
-
-
-
-
-
-        // let prediction = Array.from(modelForEmotionRecognition.predict(rgbArray).dataSync());
-
-        // ctx.scale(80,80);
-
-        // // Face to image
-        // let img = ctx.getImageData(x1, y1, width, height);
-        // console.log(img);
-
-
-        // let test = createImageBitmap(ctx.getImageData(x1, y1, width, height));
-        // console.log(test);
-
-        // let myFaceImageData = ctx.getImageData(x1,y1,width,height);
-        // console.log(myFaceImageData.data)
-        // tf.image.resizeBilinear(myFaceImageData.data,[80,80]);
-
-
-        // let myFaceImageData = new ImageData(100,100);
-        // // console.log(myFaceImageData);
-        // myFaceImageData.width=80;
-        // myFaceImageData.height=80;
-        // console.log(myFaceImageData);
-
-        // let myImageDataWidth = ctx.getImageData(x1, y1, width, height).width;
-        // let myImageDataHeight = ctx.getImageData(x1, y1, width, height).height;
-        //
-        // let myImageData = ctx.getImageData(x1, y1, width, height)["data"];
-        // // let dataArray = imageData.data
-        // let rgbArray = []
-        // for (let i = 0; i < myImageData.length; i += 4) {
-        //     // rgbArray.push([myImageData[i], myImageData[i+1], myImageData[i+2]])
-        //     rgbArray.push(myImageData[i]);
-        //     rgbArray.push(myImageData[i + 1]);
-        //     rgbArray.push(myImageData[i + 2]);
-        // }
-
-        // console.log(rgbArray)
-        // myImageData = tf.tensor3d(rgbArray, [myImageDataWidth, myImageDataHeight, 3]);
-        // myImageData = tf.image.resizeBilinear(myImageData,[80, 80, 3]);
-        // console.log(myImageData);
-
-        // tf.image.resizeNearestNeighbor(rgbArray, [80, 80]);
-
-        // const x = tf.tensor1d(rgbArray);
-        // x.resize([80,80]).println();
-        // const x = tf.tensor1d([1, 2, 3, 4]);
-        // x.reshape([2, 2]).print()
-
-        // let resized = tf.browser.fromPixels(ctx.getImageData(x1,y1,width,height));
-
-
-        // console.log(test);
-        // let resized = tf.browser.fromPixels(test).resizeBilinear([80, 80]);
-        // let resized = test.reshape([1, 80, 80, 3]);
-
-        // Data leak detected in image resizing
-        // // let resized = tf.browser.fromPixels(img).resizeNearestNeighbor([80, 80]);
-        // // let resized = tf.browser.fromPixels(img).resizeBicubic([80, 80]);
-        // let resized = tf.browser.fromPixels(img).resizeBilinear([80, 80]);
-        // resized = resized.reshape([1, 80, 80, 3]);
-
-        // let prediction = Array.from(modelForEmotionRecognition.predict(resized).dataSync());
-        // currentEmotion = getBestEmotion(prediction);
-        // results.innerHTML = magnifyResults(prediction);
         tf.engine().endScope();
-        // }
     }
 };
 
