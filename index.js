@@ -1,11 +1,15 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
+const canvasBuffer = document.getElementById("canvasBuffer");
+const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
 let modelForFaceDetection;
 let modelForEmotionRecognition;
 // declare a canvas variable and get its context
 let ctx = canvas.getContext("2d");
+let ctxBuffer = canvasBuffer.getContext("2d");
+let ctxFace = canvasFace.getContext("2d");
 let x1, y1, x2, y2;
 let currentEmotion = "";
 
@@ -55,6 +59,7 @@ const magnifyResults = (pred) => {
 const drawOnCanvas = () => {
     ctx.reset();
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctxBuffer.drawImage(video, 0, 0, canvas.width, canvas.height);
 }
 
 const detectFaces = async () => {
@@ -69,47 +74,39 @@ const detectFaces = async () => {
         let width = x2 - x1;
         let height = y2 - y1;
 
-        ctx.lineWidth = "10";
-        ctx.strokeStyle = "red";
-
         // Recalculate real coordinates to catch completely the face
-        x1 = x1 + width / 8;
-        y1 = y1 - height / 2;
-        width -= width / 4;
-        height += height * 2 / 3;
+        x1 = parseInt(x1 + width / 8);
+        y1 = parseInt(y1 - height / 2);
+        width = parseInt(width-width / 4);
+        height = parseInt(height+height * 2 / 3);
 
         // Draw rectangle
+        ctx.lineWidth = "10";
+        ctx.strokeStyle = "red";
         ctx.rect(x1, y1, width, height);
         ctx.stroke();
 
-
         tf.engine().startScope();
-        //
-        // let newctx = ctx;
-        // // newctx.scale(80, 80);
-        // let myImageData = ctx.getImageData(0, 0, 80, 80).data;
-        // // console.log(myImageData);
-        //
-        // let rgbArray = []
-        // for (let i = 0; i < myImageData.length; i += 4) {
-        //     // rgbArray.push([myImageData[i], myImageData[i + 1], myImageData[i + 2]])
-        //     rgbArray.push(myImageData[i]);
-        //     rgbArray.push(myImageData[i + 1]);
-        //     rgbArray.push(myImageData[i + 2]);
-        // }
-        //
-        // myImageData = tf.tensor4d(rgbArray, [1,80, 80, 3]);
 
-
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const imageData = ctxBuffer.getImageData(x1, y1, width, height); // w then h (screen axis)
         const uint8array = new Uint8Array(imageData.data.buffer);
-        const rgbaTens4d = tf.tensor4d(uint8array, [1, canvas.height, canvas.width, 4]);
-        const rgbTens4d= tf.slice4d(rgbaTens4d, [0, 0, 0, 0], [-1,-1, -1, 3]);
-        const smallImg = tf.image.resizeBilinear(rgbTens4d, [80, 80]);
+        const rgbaTens4d = tf.tensor4d(uint8array, [1, height, width, 4]); // h then w (image axis)
+        const rgbTens4d = tf.slice4d(rgbaTens4d, [0, 0, 0, 0], [-1, -1, -1, 3]);
+        let smallImg = tf.image.resizeBilinear(rgbTens4d, [80, 80]);
+        // const smallImg = tf.image.resizeNearestNeighbor(rgbTens4d, [80, 80]);
+
+        // // Preprocess images
+        // smallImg = smallImg.sub(tf.scalar(128));//-128
+        // smallImg = smallImg.div(tf.scalar(255));//divide by 2
+        // smallImg.print();
+
         let prediction = Array.from(modelForEmotionRecognition.predict(smallImg).dataSync());
         currentEmotion = getBestEmotion(prediction);
         results.innerHTML = magnifyResults(prediction);
+
+        // Draw croped face
+        ctxFace.reset();
+        ctxFace.putImageData(imageData, 0, 0);
 
         tf.engine().endScope();
     }
