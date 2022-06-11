@@ -1,18 +1,15 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-const canvasBuffer = document.getElementById("canvasBuffer");
 const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
+let ctx = canvas.getContext("2d");
+let ctxFace = canvasFace.getContext("2d");
+
 let modelForFaceDetection;
 let modelForEmotionRecognition;
-// declare a canvas variable and get its context
-let ctx = canvas.getContext("2d");
-let ctxBuffer = canvasBuffer.getContext("2d");
-let ctxFace = canvasFace.getContext("2d");
-let x1, y1, x2, y2;
-let currentEmotion = "";
 
+let currentEmotion = "";
 
 const emotions = {
     0: "😡 angry",
@@ -25,14 +22,26 @@ const emotions = {
 }
 
 const setupCamera = async () => {
-    navigator.mediaDevices
-        .getUserMedia({
-            video: {width: canvas.width, height: canvas.height},
-            audio: false,
-        })
-        .then((stream) => {
+    // Solution 1
+    navigator.mediaDevices.getUserMedia({video: true, audio: false})
+        .then(function (stream) {
             video.srcObject = stream;
+            video.play();
+        })
+        .catch(function (err) {
+            console.log("An error occurred! " + err);
         });
+
+    // // Solution 2
+    // navigator.mediaDevices
+    //     .getUserMedia({
+    //         video: {width: canvas.width, height: canvas.height},
+    //         audio: false,
+    //     })
+    //     .then((stream) => {
+    //         video.srcObject = stream;
+    //     });
+
     modelForFaceDetection = await blazeface.load();
     modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
 
@@ -56,14 +65,9 @@ const magnifyResults = (pred) => {
     return magnified;
 }
 
-const drawOnCanvas = () => {
+const detectFaces = async () => {
     ctx.reset();
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    ctxBuffer.drawImage(video, 0, 0, canvas.width, canvas.height);
-}
-
-const detectFaces = async () => {
-    drawOnCanvas();
 
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
@@ -74,28 +78,18 @@ const detectFaces = async () => {
         let width = x2 - x1;
         let height = y2 - y1;
 
-        // // Recalculate real coordinates to catch completely the face
-        // x1 = parseInt(x1 + width / 8);
-        // y1 = parseInt(y1 - height / 2);
-        // width = parseInt(width-width / 4);
-        // height = parseInt(height+height * 2 / 3);
-
+        // Casts coordinates to ints
         x1 = parseInt(x1);
         y1 = parseInt(y1);
         width = parseInt(width);
         height = parseInt(height);
 
-        // Draw rectangle
-        ctx.lineWidth = "10";
-        ctx.strokeStyle = "red";
-        ctx.rect(x1, y1, width, height);
-        ctx.stroke();
+        const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
 
+        // Check tensor memory leak start
         tf.engine().startScope();
 
-        const imageData = ctxBuffer.getImageData(x1, y1, width, height); // w then h (screen axis)
-
-        //// Conversion to tensor4D version 1 :
+        //// Conversion to tensor4D and resize
         let tfImage = tf.browser.fromPixels(imageData, 3);
         let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
         tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
@@ -103,20 +97,18 @@ const detectFaces = async () => {
         currentEmotion = getBestEmotion(prediction);
         results.innerHTML = magnifyResults(prediction);
 
-        //// Conversion to tensor4D version 2 :
-        // const uint8array = new Uint8Array(imageData.data.buffer);
-        // const rgbaTens4d = tf.tensor4d(uint8array, [1, height, width, 4]); // h then w (image axis)
-        // const rgbTens4d = tf.slice4d(rgbaTens4d, [0, 0, 0, 0], [-1, -1, -1, 3]);
-        // let smallImg = tf.image.resizeBilinear(rgbTens4d, [80, 80]);
-        // let prediction = Array.from(modelForEmotionRecognition.predict(smallImg).dataSync());
-        // currentEmotion = getBestEmotion(prediction);
-        // results.innerHTML = magnifyResults(prediction);
+        // Check tensor memory leak stop
+        tf.engine().endScope();
 
         // Draw croped face
         ctxFace.reset();
         ctxFace.putImageData(imageData, 0, 0);
 
-        tf.engine().endScope();
+        // Draw rectangle
+        ctx.lineWidth = "10";
+        ctx.strokeStyle = "red";
+        ctx.rect(x1, y1, width, height);
+        ctx.stroke();
     }
 };
 
