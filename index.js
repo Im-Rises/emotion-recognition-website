@@ -90,8 +90,8 @@ const detectFaces = async () => {
         tf.engine().startScope();
 
         //// Conversion to tensor4D and resize
-        let tfImage = await tf.browser.fromPixels(imageData, 3);
-        let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
+        let tfImage = tf.browser.fromPixels(imageData, 3);
+        let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);// tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
         tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
         let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
         currentEmotion = getBestEmotion(prediction);
