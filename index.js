@@ -94,20 +94,23 @@ const detectFaces = async () => {
         tf.engine().startScope();
 
         const imageData = ctxBuffer.getImageData(x1, y1, width, height); // w then h (screen axis)
-        const uint8array = new Uint8Array(imageData.data.buffer);
-        const rgbaTens4d = tf.tensor4d(uint8array, [1, height, width, 4]); // h then w (image axis)
-        const rgbTens4d = tf.slice4d(rgbaTens4d, [0, 0, 0, 0], [-1, -1, -1, 3]);
-        let smallImg = tf.image.resizeBilinear(rgbTens4d, [80, 80]);
-        // const smallImg = tf.image.resizeNearestNeighbor(rgbTens4d, [80, 80]);
 
-        // // Preprocess images
-        // smallImg = smallImg.sub(tf.scalar(128));//-128
-        // smallImg = smallImg.div(tf.scalar(255));//divide by 2
-        // smallImg.print();
-
-        let prediction = Array.from(modelForEmotionRecognition.predict(smallImg).dataSync());
+        //// Conversion to tensor4D version 1 :
+        let tfImage = tf.browser.fromPixels(imageData, 3);
+        let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
+        tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
+        let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
         currentEmotion = getBestEmotion(prediction);
         results.innerHTML = magnifyResults(prediction);
+
+        //// Conversion to tensor4D version 2 :
+        // const uint8array = new Uint8Array(imageData.data.buffer);
+        // const rgbaTens4d = tf.tensor4d(uint8array, [1, height, width, 4]); // h then w (image axis)
+        // const rgbTens4d = tf.slice4d(rgbaTens4d, [0, 0, 0, 0], [-1, -1, -1, 3]);
+        // let smallImg = tf.image.resizeBilinear(rgbTens4d, [80, 80]);
+        // let prediction = Array.from(modelForEmotionRecognition.predict(smallImg).dataSync());
+        // currentEmotion = getBestEmotion(prediction);
+        // results.innerHTML = magnifyResults(prediction);
 
         // Draw croped face
         ctxFace.reset();
