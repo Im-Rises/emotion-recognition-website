@@ -88,15 +88,24 @@ const detectFaces = async () => {
 
         // Check tensor memory leak start
         tf.engine().startScope();
+        tf.tidy(() => {
+            //// Conversion to tensor4D and resize
+            let tfImage = tf.browser.fromPixels(imageData, 3);
 
-        //// Conversion to tensor4D and resize
-        let tfImage = tf.browser.fromPixels(imageData, 3);
-        let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);// tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
-        tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
-        let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
-        currentEmotion = getBestEmotion(prediction);
-        results.innerHTML = magnifyResults(prediction);
+            // Resize and reshape method 1
+            let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
 
+            // // Resize and reshape method 2
+            // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
+            // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
+
+            let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
+            currentEmotion = getBestEmotion(prediction);
+            results.innerHTML = magnifyResults(prediction);
+
+            // tfImage.dispose();
+            // tfResizedImage.dispose();
+        });
         // Check tensor memory leak stop
         tf.engine().endScope();
 
@@ -110,6 +119,9 @@ const detectFaces = async () => {
         ctx.rect(x1, y1, width, height);
         ctx.stroke();
     }
+
+    // console.log('Memory : ');
+    // console.log(tf.memory());
 };
 
 setupCamera();
