@@ -89,6 +89,8 @@ const detectFaces = async () => {
 
         const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
 
+        frame_iter++;
+
         if (frame_iter >= prediction_per_second) {
 
             // Check tensor memory leak start
@@ -116,8 +118,6 @@ const detectFaces = async () => {
 
             frame_iter = 0;
         }
-
-        frame_iter++;
 
         // // Draw croped face
         // ctxFace.reset();
