@@ -1,15 +1,18 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-const canvasFace = document.getElementById("canvasFace");
+// const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
 let ctx = canvas.getContext("2d");
-let ctxFace = canvasFace.getContext("2d");
+// let ctxFace = canvasFace.getContext("2d");
 
 let modelForFaceDetection;
 let modelForEmotionRecognition;
 
 let currentEmotion = "";
+
+const prediction_per_second = 10;
+let frame_iter = 0;
 
 const emotions = {
     0: "😡 angry",
@@ -86,35 +89,42 @@ const detectFaces = async () => {
 
         const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
 
-        // Check tensor memory leak start
-        tf.engine().startScope();
-        tf.tidy(() => {
-            //// Conversion to tensor4D and resize
-            let tfImage = tf.browser.fromPixels(imageData, 3);
+        if (frame_iter >= prediction_per_second) {
 
-            // Resize and reshape method 1
-            let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
+            // Check tensor memory leak start
+            tf.engine().startScope();
+            tf.tidy(() => {
+                //// Conversion to tensor4D and resize
+                let tfImage = tf.browser.fromPixels(imageData, 3);
 
-            // // Resize and reshape method 2
-            // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
-            // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
+                // Resize and reshape method 1
+                let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
 
-            let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
-            currentEmotion = getBestEmotion(prediction);
-            results.innerHTML = magnifyResults(prediction);
+                // // Resize and reshape method 2
+                // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
+                // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
 
-            // tfImage.dispose();
-            // tfResizedImage.dispose();
-        });
-        // Check tensor memory leak stop
-        tf.engine().endScope();
+                let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
+                currentEmotion = getBestEmotion(prediction);
+                results.innerHTML = magnifyResults(prediction);
 
-        // Draw croped face
-        ctxFace.reset();
-        ctxFace.putImageData(imageData, 0, 0);
+                // tfImage.dispose();
+                // tfResizedImage.dispose();
+            });
+            // Check tensor memory leak stop
+            tf.engine().endScope();
+
+            frame_iter = 0;
+        }
+
+        frame_iter++;
+
+        // // Draw croped face
+        // ctxFace.reset();
+        // ctxFace.putImageData(imageData, 0, 0);
 
         // Draw rectangle
-        ctx.lineWidth = "10";
+        ctx.lineWidth = "2";
         ctx.strokeStyle = "red";
         ctx.rect(x1, y1, width, height);
         ctx.stroke();
