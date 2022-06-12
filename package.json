@@ -1,0 +1,11 @@
+{
+  "name": "emotion-recognition-website",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Im-Rises/emotion-recognition-website.git",
+  "author": "clementreiffers <reiffersclement@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^2.6.2"
+  }
+}
