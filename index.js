@@ -1,10 +1,10 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-// const canvasFace = document.getElementById("canvasFace");
+const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
 let ctx = canvas.getContext("2d");
-// let ctxFace = canvasFace.getContext("2d");
+let ctxFace = canvasFace.getContext("2d");
 
 let modelForFaceDetection;
 let modelForEmotionRecognition;
@@ -47,7 +47,6 @@ const setupCamera = async () => {
 
     modelForFaceDetection = await blazeface.load();
     modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
-
 };
 
 const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
@@ -87,7 +86,27 @@ const detectFaces = async () => {
         width = parseInt(width);
         height = parseInt(height);
 
-        const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
+        ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvas.width, canvas.height);
+
+        console.log(canvasFace.width, canvasFace.height);
+
+        let imageData =  ctx.getImageData(0, 0, 80, 80); // w then h (screen axis)
+
+
+        // // const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
+        // let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // w then h (screen axis)
+        // // imageData = null;
+
+
+        // let testArray;
+        //
+        // for (let i = y1; i < y2; i++) {
+        //     for (let j = x1; j < x2; j++) {
+        //         testArray[i][j][0] = imageData.data[i][j][0];//R
+        //         testArray[i][j][1] = imageData.data[i][j][1];//G
+        //         testArray[i][j][2] = imageData.data[i][j][2];//B
+        //     }
+        // }
 
         frame_iter++;
 
@@ -110,8 +129,8 @@ const detectFaces = async () => {
                 currentEmotion = getBestEmotion(prediction);
                 results.innerHTML = magnifyResults(prediction);
 
-                // tfImage.dispose();
-                // tfResizedImage.dispose();
+                tfImage.dispose();
+                tfResizedImage.dispose();
             });
             // Check tensor memory leak stop
             tf.engine().endScope();
@@ -130,8 +149,8 @@ const detectFaces = async () => {
         ctx.stroke();
     }
 
-    // console.log('Memory : ');
-    // console.log(tf.memory());
+    console.log('Memory : ');
+    console.log(tf.memory());
 };
 
 setupCamera();
