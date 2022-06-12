@@ -86,27 +86,10 @@ const detectFaces = async () => {
         width = parseInt(width);
         height = parseInt(height);
 
-        ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvas.width, canvas.height);
+        ctxFace.reset();
+        ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvasFace.width, canvasFace.height);
 
-        console.log(canvasFace.width, canvasFace.height);
-
-        let imageData =  ctx.getImageData(0, 0, 80, 80); // w then h (screen axis)
-
-
-        // // const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
-        // let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height); // w then h (screen axis)
-        // // imageData = null;
-
-
-        // let testArray;
-        //
-        // for (let i = y1; i < y2; i++) {
-        //     for (let j = x1; j < x2; j++) {
-        //         testArray[i][j][0] = imageData.data[i][j][0];//R
-        //         testArray[i][j][1] = imageData.data[i][j][1];//G
-        //         testArray[i][j][2] = imageData.data[i][j][2];//B
-        //     }
-        // }
+        let imageData =  ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
 
         frame_iter++;
 
@@ -116,31 +99,27 @@ const detectFaces = async () => {
             tf.engine().startScope();
             tf.tidy(() => {
                 //// Conversion to tensor4D and resize
-                let tfImage = tf.browser.fromPixels(imageData, 3);
+                let tfImage = tf.browser.fromPixels(imageData, 3).expandDims(0);
 
-                // Resize and reshape method 1
-                let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
+                // // Resize and reshape method 1
+                // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
 
                 // // Resize and reshape method 2
                 // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
                 // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
 
-                let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
+                let prediction = Array.from(modelForEmotionRecognition.predict(tfImage).dataSync());
                 currentEmotion = getBestEmotion(prediction);
                 results.innerHTML = magnifyResults(prediction);
 
                 tfImage.dispose();
-                tfResizedImage.dispose();
+                // tfResizedImage.dispose();
             });
             // Check tensor memory leak stop
             tf.engine().endScope();
 
             frame_iter = 0;
         }
-
-        // // Draw croped face
-        // ctxFace.reset();
-        // ctxFace.putImageData(imageData, 0, 0);
 
         // Draw rectangle
         ctx.lineWidth = "2";
