@@ -62,9 +62,19 @@ const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
 const magnifyResults = (pred) => {
     let emotionsWithValue = [];
+    let emotionsText = [];
     let magnified = "";
-    for (let i in pred) emotionsWithValue.push(emotions[i] + " : " + parseInt(pred[i] * 100));
-    for (let i in emotionsWithValue) magnified += '<p>' + emotionsWithValue[i].toString().replace(/,/g, ' ') + '%</p>';
+
+    // Sort by ascending order
+    for (let i in pred) emotionsWithValue.push({"emotion": emotions[i], "value": parseInt(pred[i] * 100)});
+    emotionsWithValue.sort((a, b) => b.value - a.value);
+
+    // Create list of tags with emotions and probability
+    for (let i in pred) {
+        emotionsText.push(emotionsWithValue[i].emotion + " : " + emotionsWithValue[i].value);
+        magnified += '<p>' + emotionsText[i].toString().replace(/,/g, ' ') + '%</p>';
+    }
+
     return magnified;
 }
 
@@ -96,7 +106,7 @@ const detectFaces = async () => {
         ctxBuffer.stroke();
 
         //Swap buffers
-        ctx.drawImage(canvasBuffer,0,0, canvas.width, canvas.height);
+        ctx.drawImage(canvasBuffer, 0, 0, canvas.width, canvas.height);
 
         ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvasFace.width, canvasFace.height);
 
@@ -131,8 +141,7 @@ const detectFaces = async () => {
 
             frameIter = 0;
         }
-    }
-    else{
+    } else {
         // No swap buffers, copy video directly
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
