@@ -1,9 +1,11 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
+const canvasBuffer = document.getElementById("canvasBuffer");
 const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
 let ctx = canvas.getContext("2d");
+let ctxBuffer = canvasBuffer.getContext("2d");
 let ctxFace = canvasFace.getContext("2d");
 
 let modelForFaceDetection;
@@ -67,8 +69,6 @@ const magnifyResults = (pred) => {
 }
 
 const detectFaces = async () => {
-    ctx.reset();
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
@@ -85,7 +85,19 @@ const detectFaces = async () => {
         width = parseInt(width);
         height = parseInt(height);
 
-        ctxFace.reset();
+        // Set buffer
+        ctxBuffer.reset();
+        ctxBuffer.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Draw rectangle on buffer
+        ctxBuffer.lineWidth = "2";
+        ctxBuffer.strokeStyle = "red";
+        ctxBuffer.rect(x1, y1, width, height);
+        ctxBuffer.stroke();
+
+        //Swap buffers
+        ctx.drawImage(canvasBuffer,0,0, canvas.width, canvas.height);
+
         ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvasFace.width, canvasFace.height);
 
         let imageData = ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
@@ -119,12 +131,10 @@ const detectFaces = async () => {
 
             frameIter = 0;
         }
-
-        // Draw rectangle
-        ctx.lineWidth = "2";
-        ctx.strokeStyle = "red";
-        ctx.rect(x1, y1, width, height);
-        ctx.stroke();
+    }
+    else{
+        // No swap buffers, copy video directly
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
     // console.log('Memory : ');
