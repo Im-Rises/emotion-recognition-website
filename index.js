@@ -1,18 +1,19 @@
 const video = document.getElementById("video");
 const canvas = document.getElementById("canvas");
-// const canvasFace = document.getElementById("canvasFace");
+const canvasBuffer = document.getElementById("canvasBuffer");
+const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
 
 let ctx = canvas.getContext("2d");
-// let ctxFace = canvasFace.getContext("2d");
+let ctxBuffer = canvasBuffer.getContext("2d");
+let ctxFace = canvasFace.getContext("2d");
 
 let modelForFaceDetection;
 let modelForEmotionRecognition;
 
 let currentEmotion = "";
 
-const prediction_per_second = 10;
-let frame_iter = 0;
+let frameIter = 0;
 
 const emotions = {
     0: "😡 angry",
@@ -47,7 +48,6 @@ const setupCamera = async () => {
 
     modelForFaceDetection = await blazeface.load();
     modelForEmotionRecognition = await tf.loadLayersModel('https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json');
-
 };
 
 const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
@@ -69,8 +69,6 @@ const magnifyResults = (pred) => {
 }
 
 const detectFaces = async () => {
-    ctx.reset();
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
     const face = await modelForFaceDetection.estimateFaces(video, false);
 
@@ -87,47 +85,56 @@ const detectFaces = async () => {
         width = parseInt(width);
         height = parseInt(height);
 
-        const imageData = ctx.getImageData(x1, y1, width, height); // w then h (screen axis)
+        // Set buffer
+        ctxBuffer.reset();
+        ctxBuffer.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        if (frame_iter >= prediction_per_second) {
+        // Draw rectangle on buffer
+        ctxBuffer.lineWidth = "2";
+        ctxBuffer.strokeStyle = "red";
+        ctxBuffer.rect(x1, y1, width, height);
+        ctxBuffer.stroke();
+
+        //Swap buffers
+        ctx.drawImage(canvasBuffer,0,0, canvas.width, canvas.height);
+
+        ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvasFace.width, canvasFace.height);
+
+        let imageData = ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
+
+        frameIter++;
+
+        if (frameIter >= 10) {
 
             // Check tensor memory leak start
             tf.engine().startScope();
             tf.tidy(() => {
                 //// Conversion to tensor4D and resize
-                let tfImage = tf.browser.fromPixels(imageData, 3);
+                let tfImage = tf.browser.fromPixels(imageData, 3).expandDims(0);
 
-                // Resize and reshape method 1
-                let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
+                // // Resize and reshape method 1
+                // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
 
                 // // Resize and reshape method 2
                 // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
                 // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
 
-                let prediction = Array.from(modelForEmotionRecognition.predict(tfResizedImage).dataSync());
+                let prediction = Array.from(modelForEmotionRecognition.predict(tfImage).dataSync());
                 currentEmotion = getBestEmotion(prediction);
                 results.innerHTML = magnifyResults(prediction);
 
-                // tfImage.dispose();
+                tfImage.dispose();
                 // tfResizedImage.dispose();
             });
             // Check tensor memory leak stop
             tf.engine().endScope();
 
-            frame_iter = 0;
+            frameIter = 0;
         }
-
-        frame_iter++;
-
-        // // Draw croped face
-        // ctxFace.reset();
-        // ctxFace.putImageData(imageData, 0, 0);
-
-        // Draw rectangle
-        ctx.lineWidth = "2";
-        ctx.strokeStyle = "red";
-        ctx.rect(x1, y1, width, height);
-        ctx.stroke();
+    }
+    else{
+        // No swap buffers, copy video directly
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     }
 
     // console.log('Memory : ');
@@ -136,5 +143,5 @@ const detectFaces = async () => {
 
 setupCamera();
 video.addEventListener("loadeddata", async () => {
-    setInterval(detectFaces, 100);
+    setInterval(detectFaces, 100);//in ms
 });
