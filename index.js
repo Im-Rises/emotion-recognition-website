@@ -11,8 +11,7 @@ let modelForEmotionRecognition;
 
 let currentEmotion = "";
 
-const prediction_per_second = 10;
-let frame_iter = 0;
+let frameIter = 0;
 
 const emotions = {
     0: "😡 angry",
@@ -89,11 +88,11 @@ const detectFaces = async () => {
         ctxFace.reset();
         ctxFace.drawImage(canvas, x1, y1, width, height, 0, 0, canvasFace.width, canvasFace.height);
 
-        let imageData =  ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
+        let imageData = ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
 
-        frame_iter++;
+        frameIter++;
 
-        if (frame_iter >= prediction_per_second) {
+        if (frameIter >= 10) {
 
             // Check tensor memory leak start
             tf.engine().startScope();
@@ -118,7 +117,7 @@ const detectFaces = async () => {
             // Check tensor memory leak stop
             tf.engine().endScope();
 
-            frame_iter = 0;
+            frameIter = 0;
         }
 
         // Draw rectangle
@@ -128,11 +127,11 @@ const detectFaces = async () => {
         ctx.stroke();
     }
 
-    console.log('Memory : ');
-    console.log(tf.memory());
+    // console.log('Memory : ');
+    // console.log(tf.memory());
 };
 
 setupCamera();
 video.addEventListener("loadeddata", async () => {
-    setInterval(detectFaces, 100);
+    setInterval(detectFaces, 100);//in ms
 });
