@@ -52,13 +52,7 @@ const setupCamera = async () => {
   );
 };
 
-const getIndexOfMax = (pred) => R.indexOf(getMax(pred), pred);
-
-const getMax = (pred) => {
-  let acc = 0;
-  for (let i of pred) if (i > acc) acc = i;
-  return acc;
-};
+const getIndexOfMax = R.indexOf(Math.max);
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
