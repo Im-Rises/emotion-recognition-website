@@ -2,10 +2,14 @@
   "name": "emotion-recognition-website",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/Im-Rises/emotion-recognition-website.git",
-  "author": "clementreiffers <reiffersclement@gmail.com>",
-  "license": "MIT",
   "dependencies": {
     "prettier": "^2.6.2"
+  },
+  "description": "emotion-recognition-website made in HTML/CSS/Javascript and TensorFlow.js",
+  "repository": "https://github.com/Im-Rises/emotion-recognition-website.git",
+  "author": "Im-Rises <quentin-morel88@hotmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "xo": "^0.50.0"
   }
 }

@@ -15,16 +15,15 @@ let currentEmotion = "";
 
 let frameIter = 0;
 
-const emotions = {
-  0: "😡 angry",
-  1: "🤮 disgust",
-  2: "😨 fear",
-  3: "😄 happy",
-  4: "😐 neutral",
-  5: "😭 sad",
-  6: "😯 surprise",
-};
-
+const emotions = [
+  "😡 angry : ",
+  "🤮 disgust : ",
+  "😨 fear : ",
+  "😄 happy : ",
+  "😐 neutral : ",
+  "😭 sad : ",
+  "😯 surprise : ",
+];
 const setupCamera = async () => {
   // Solution 1
   navigator.mediaDevices
@@ -63,30 +62,32 @@ const getMax = (pred) => {
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
-const magnifyResults = (pred) => {
-  let emotionsWithValue = [];
-  let emotionsText = [];
-  let magnified = "";
+const addPercentage = (x) => x + " %";
 
-  // Sort by ascending order
-  for (let i in pred)
-    emotionsWithValue.push({
-      emotion: emotions[i],
-      value: parseInt(pred[i] * 100),
-    });
-  emotionsWithValue.sort((a, b) => b.value - a.value);
+const getPercentage = R.pipe(R.multiply(100), parseInt, addPercentage);
 
-  // Create list of tags with emotions and probability
-  for (let i in pred) {
-    emotionsText.push(
-      emotionsWithValue[i].emotion + " : " + emotionsWithValue[i].value
-    );
-    magnified +=
-      "<p>" + emotionsText[i].toString().replace(/,/g, " ") + "%</p>";
-  }
+const getScoreInPercentage = R.map(getPercentage);
 
-  return magnified;
-};
+const getEmotionNearToItsScore = (listOfEmotions) => (pred) =>
+  R.transpose([listOfEmotions, pred]);
+
+const getListOfEmotionsSorted = R.sortBy(R.prop(1));
+
+const magnifyOnePrediction = R.pipe(
+  R.prepend("<p>"),
+  R.append("</p>"),
+  R.join("")
+);
+
+const magnifyResults = (listOfEmotions) =>
+  R.pipe(
+    getScoreInPercentage,
+    getEmotionNearToItsScore(listOfEmotions),
+    getListOfEmotionsSorted,
+    R.reverse,
+    R.map(magnifyOnePrediction),
+    R.join("")
+  );
 
 const detectFaces = async () => {
   const face = await modelForFaceDetection.estimateFaces(video, false);
@@ -151,8 +152,7 @@ const detectFaces = async () => {
           modelForEmotionRecognition.predict(tfImage).dataSync()
         );
         currentEmotion = getBestEmotion(prediction);
-        results.innerHTML = magnifyResults(prediction);
-
+        results.innerHTML = magnifyResults(emotions)(prediction);
         tfImage.dispose();
         // tfResizedImage.dispose();
       });
