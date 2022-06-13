@@ -8,26 +8,29 @@ html{
 }
 body {
     margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
 }
 
 canvas {
     border-radius: 30px;
-    width: 70%;
+    width: 50%;
     float: right;
 }
 #result{
     float: left;
-    max-width: 50%;
+    width: 50%;
 }
 
 #showEmotion{
-    position: absolute;
-    width: 25%;
+    position: relative;
+    width: 90%;
+    text-align: center;
     padding: 2%;
     display: list-item;
-    font-size: 180%;
-    background-color: white;
-    opacity: 0.7;
+    font-size: 30px;
+    background-color: lightgray;
     color: black;
     border-radius: 30px;
 
