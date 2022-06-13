@@ -1,0 +1,11 @@
+{
+  "name": "emotion-recognition-website",
+  "version": "1.0.0",
+  "description": "emotion-recognition-website made in HTML/CSS/Javascript and TensorFlow.js",
+  "repository": "https://github.com/Im-Rises/emotion-recognition-website.git",
+  "author": "Im-Rises <quentin-morel88@hotmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "xo": "^0.50.0"
+  }
+}
