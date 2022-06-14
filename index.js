@@ -35,17 +35,6 @@ const setupCamera = async () => {
     .catch(function (err) {
       console.log("An error occurred! " + err);
     });
-
-  // // Solution 2
-  // navigator.mediaDevices
-  //     .getUserMedia({
-  //         video: {width: canvas.width, height: canvas.height},
-  //         audio: false,
-  //     })
-  //     .then((stream) => {
-  //         video.srcObject = stream;
-  //     });
-
   modelForFaceDetection = await blazeface.load();
   modelForEmotionRecognition = await tf.loadLayersModel(
     "https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json"
@@ -122,7 +111,12 @@ const detectFaces = async () => {
       canvasFace.height
     );
 
-    let imageData = ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
+    let imageData = ctxFace.getImageData(
+      0,
+      0,
+      canvasFace.width,
+      canvasFace.height
+    ); // w then h (screen axis)
 
     frameIter++;
 
@@ -132,13 +126,6 @@ const detectFaces = async () => {
       tf.tidy(() => {
         //// Conversion to tensor4D and resize
         let tfImage = tf.browser.fromPixels(imageData, 3).expandDims(0);
-
-        // // Resize and reshape method 1
-        // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
-
-        // // Resize and reshape method 2
-        // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
-        // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
 
         let prediction = Array.from(
           modelForEmotionRecognition.predict(tfImage).dataSync()
@@ -157,9 +144,6 @@ const detectFaces = async () => {
     // No swap buffers, copy video directly
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   }
-
-  // console.log('Memory : ');
-  // console.log(tf.memory());
 };
 
 setupCamera();
