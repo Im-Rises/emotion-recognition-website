@@ -56,9 +56,7 @@ const getIndexOfMax = R.indexOf(Math.max);
 
 const getBestEmotion = (pred) => emotions[getIndexOfMax(pred)];
 
-const addPercentage = (x) => x + " %";
-
-const getPercentage = R.pipe(R.multiply(100), parseInt, addPercentage);
+const getPercentage = R.pipe(R.multiply(100), parseInt);
 
 const getScoreInPercentage = R.map(getPercentage);
 
@@ -69,7 +67,7 @@ const getListOfEmotionsSorted = R.sortBy(R.prop(1));
 
 const magnifyOnePrediction = R.pipe(
   R.prepend("<p>"),
-  R.append("</p>"),
+  R.append(" %</p>"),
   R.join("")
 );
 
@@ -78,6 +76,7 @@ const magnifyResults = (listOfEmotions) =>
     getScoreInPercentage,
     getEmotionNearToItsScore(listOfEmotions),
     getListOfEmotionsSorted,
+    R.tap(console.log),
     R.reverse,
     R.map(magnifyOnePrediction),
     R.join("")
