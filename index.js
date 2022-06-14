@@ -76,7 +76,6 @@ const magnifyResults = (listOfEmotions) =>
     getScoreInPercentage,
     getEmotionNearToItsScore(listOfEmotions),
     getListOfEmotionsSorted,
-    R.tap(console.log),
     R.reverse,
     R.map(magnifyOnePrediction),
     R.join("")
