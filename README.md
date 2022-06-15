@@ -72,6 +72,8 @@ TensorFlow.js python model to tensorflowjs :
 BlazeFace :  
 <https://www.npmjs.com/package/@tensorflow-models/blazeface>
 
+Switching Camera :
+<https://www.twilio.com/blog/2018/04/choosing-cameras-javascript-mediadevices-api.html>
 ## Contributors
 
 Quentin MOREL :
