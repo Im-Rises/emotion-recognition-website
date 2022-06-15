@@ -3,6 +3,8 @@ const canvas = document.getElementById("canvas");
 const canvasBuffer = document.getElementById("canvasBuffer");
 const canvasFace = document.getElementById("canvasFace");
 const results = document.getElementById("showEmotion");
+const select = document.getElementById("select");
+const change_camera = document.getElementById("change_camera");
 
 let ctx = canvas.getContext("2d");
 let ctxBuffer = canvasBuffer.getContext("2d");
@@ -12,6 +14,7 @@ let modelForFaceDetection;
 let modelForEmotionRecognition;
 
 let currentEmotion = "";
+let currentStream;
 
 let frameIter = 0;
 
@@ -24,6 +27,29 @@ const emotions = [
   "😭 sad : ",
   "😯 surprise : ",
 ];
+
+const gotDevices = (mediaDevices) => {
+  select.innerHTML = "";
+  select.appendChild(document.createElement("option"));
+  let count = 1;
+  mediaDevices.forEach((mediaDevice) => {
+    if (mediaDevice.kind === "videoinput") {
+      const option = document.createElement("option");
+      option.value = mediaDevice.deviceId;
+      const label = mediaDevice.label || `Camera ${count++}`;
+      const textNode = document.createTextNode(label);
+      option.appendChild(textNode);
+      select.appendChild(option);
+    }
+  });
+};
+
+const stopMediaTracks = (stream) => {
+  stream.getTracks().forEach((track) => {
+    track.stop();
+  });
+};
+
 const setupCamera = async () => {
   // Solution 1
   navigator.mediaDevices
@@ -35,17 +61,6 @@ const setupCamera = async () => {
     .catch(function (err) {
       console.log("An error occurred! " + err);
     });
-
-  // // Solution 2
-  // navigator.mediaDevices
-  //     .getUserMedia({
-  //         video: {width: canvas.width, height: canvas.height},
-  //         audio: false,
-  //     })
-  //     .then((stream) => {
-  //         video.srcObject = stream;
-  //     });
-
   modelForFaceDetection = await blazeface.load();
   modelForEmotionRecognition = await tf.loadLayersModel(
     "https://raw.githubusercontent.com/Im-Rises/emotion-recognition-website/main/resnet50js_ferplus/model.json"
@@ -122,7 +137,12 @@ const detectFaces = async () => {
       canvasFace.height
     );
 
-    let imageData = ctxFace.getImageData(0, 0, 80, 80); // w then h (screen axis)
+    let imageData = ctxFace.getImageData(
+      0,
+      0,
+      canvasFace.width,
+      canvasFace.height
+    ); // w then h (screen axis)
 
     frameIter++;
 
@@ -132,13 +152,6 @@ const detectFaces = async () => {
       tf.tidy(() => {
         //// Conversion to tensor4D and resize
         let tfImage = tf.browser.fromPixels(imageData, 3).expandDims(0);
-
-        // // Resize and reshape method 1
-        // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]).expandDims(0);
-
-        // // Resize and reshape method 2
-        // let tfResizedImage = tf.image.resizeBilinear(tfImage, [80, 80]);
-        // tfResizedImage = tfResizedImage.reshape([1, 80, 80, 3]);
 
         let prediction = Array.from(
           modelForEmotionRecognition.predict(tfImage).dataSync()
@@ -157,11 +170,36 @@ const detectFaces = async () => {
     // No swap buffers, copy video directly
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   }
-
-  // console.log('Memory : ');
-  // console.log(tf.memory());
 };
 
+navigator.mediaDevices.enumerateDevices().then(gotDevices);
+change_camera.addEventListener("click", (event) => {
+  if (typeof currentStream !== "undefined") {
+    stopMediaTracks(currentStream);
+  }
+  const videoConstraints = {};
+  if (select.value === "") {
+    videoConstraints.facingMode = "environment";
+  } else {
+    videoConstraints.deviceId = { exact: select.value };
+  }
+  const constraints = {
+    video: videoConstraints,
+    audio: false,
+  };
+
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then((stream) => {
+      currentStream = stream;
+      video.srcObject = stream;
+      return navigator.mediaDevices.enumerateDevices();
+    })
+    .then(gotDevices)
+    .catch((error) => {
+      console.error(error);
+    });
+});
 setupCamera();
 video.addEventListener("loadeddata", async () => {
   setInterval(detectFaces, 100); //in ms
