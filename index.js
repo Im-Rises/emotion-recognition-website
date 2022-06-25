@@ -112,9 +112,22 @@ const detectFaces = async () => {
     width = parseInt(width);
     height = parseInt(height);
 
-    // Set buffer
-    ctxBuffer.reset();
+    /*---------------------------------------------------------------------------*/
+    /* Set buffer */
+
+    // // Chrome
+    // ctxBuffer.reset();
+    //
+    // // Firefox
+    // ctxBuffer.rect(0, 0, canvas.width, canvas.height);
+
+    // All platforms
+    ctxBuffer.beginPath();
+    ctxBuffer.fillStyle = "rgba(0, 0, 0, 0)";
+    ctxBuffer.fillRect(0, 0, canvas.width, canvas.height);
+    ctxBuffer.stroke();
     ctxBuffer.drawImage(video, 0, 0, canvas.width, canvas.height);
+    /*---------------------------------------------------------------------------*/
 
     // Draw rectangle on buffer
     ctxBuffer.lineWidth = "2";
