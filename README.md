@@ -15,9 +15,13 @@ is implemented allowing you to look for your emotion details.
 The project is based on the following project at the link below :  
 <https://github.com/Im-Rises/emotion_recognition_cnn>
 
-## Images
+## Videos
 
-
+<p align="center">
+    <img src="https://user-images.githubusercontent.com/59691442/172060165-98d48d66-48cc-4d62-9529-2137907c621b.gif" alt="quentinVid"/>
+    <img src="https://user-images.githubusercontent.com/59691442/172060168-c282b57d-6d77-4a51-b44b-4088768a8022.gif" alt="clementVid"/>
+    <img src="https://user-images.githubusercontent.com/59691442/172060174-c7550108-bac5-4bdf-9661-69f7c7c88e52.gif" alt="yohanVid"/>
+</p>
 
 ## Quickstart
 
@@ -60,6 +64,16 @@ for your model, change the dimensions in the resizeBilinear method call in the `
 emotion_recognition :  
 <https://github.com/clementreiffers/emotion_recognition_cnn>
 
+## GitHub Actions
+
+[![CodeQL](https://github.com/Im-Rises/emotion-recognition-website/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/Im-Rises/emotion-recognition-website/actions/workflows/codeql.yml)
+[![pages-build-deployment](https://github.com/Im-Rises/emotion-recognition-website/actions/workflows/pages/pages-build-deployment/badge.svg?branch=main)](https://github.com/Im-Rises/emotion-recognition-website/actions/workflows/pages/pages-build-deployment)
+
+The project is set with a set of different scripts that do the following tasks:
+
+- CodeQl : Runs the codeql analysis on the project.
+- Pages Build : Builds the project with the pages framework.
+
 ## Documentations
 
 TensorFlow.js :  
@@ -74,6 +88,7 @@ BlazeFace :
 
 Switching Camera :
 <https://www.twilio.com/blog/2018/04/choosing-cameras-javascript-mediadevices-api.html>
+
 ## Contributors
 
 Quentin MOREL :
